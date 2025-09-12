@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// API route to generate images
+// API route
 app.post("/api/generate", async (req, res) => {
   try {
     const { prompt, numOutputs } = req.body;
@@ -26,24 +26,23 @@ app.post("/api/generate", async (req, res) => {
 
     const data = await response.json();
 
-    // DeepAI only gives back 1 image, so we duplicate if more are requested
+    // DeepAI gives only 1 image → duplicate for multiple outputs
     const images = [];
     for (let i = 0; i < (numOutputs || 1); i++) {
       images.push(data.output_url);
     }
 
-    res.json({ output_url: images });
+    res.json({ images });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to generate image" });
   }
 });
 
-// Default route
+// Serve frontend
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

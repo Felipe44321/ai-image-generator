@@ -22,7 +22,7 @@ const updateImageCard = (imgUrls) => {
 // Call your backend
 const generateAiImages = async (userPrompt, userImgQuantity) => {
   try {
-    const response = await fetch("http://localhost:3000/generate", {
+    const response = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt: userPrompt, numOutputs: userImgQuantity }),
@@ -34,8 +34,8 @@ const generateAiImages = async (userPrompt, userImgQuantity) => {
 
     if (prediction.error) throw new Error(prediction.error);
 
-    // Replicate returns an array of image URLs
-    const imageUrls = prediction.output || [];
+    // DeepAI returns only 1 image per call → adapt
+    const imageUrls = prediction.output_url ? [prediction.output_url] : [];
 
     if (imageUrls.length === 0) {
       throw new Error("No images generated. Try another prompt.");

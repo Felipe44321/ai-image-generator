@@ -1,41 +1,44 @@
-const form = document.querySelector(".generate-form");
-const promptInput = document.querySelector(".prompt-input");
-const imgQuantity = document.querySelector(".img-quantity");
-const gallery = document.querySelector(".image-gallery");
+const form = document.getElementById("image-form");
+const promptInput = document.getElementById("user-prompt");
+const imgQuantity = document.getElementById("image-quantity");
+const imgContainer = document.getElementById("image-container");
 
 function updateImageCard(imgUrls) {
-  gallery.innerHTML = "";
+  imgContainer.innerHTML = "";
   imgUrls.forEach((url, index) => {
-    const card = document.createElement("div");
-    card.classList.add("img-card");
+    const imgCard = document.createElement("div");
+    imgCard.classList.add("img-card");
 
-    const img = document.createElement("img");
-    img.src = url;
-    img.alt = `AI Image ${index + 1}`;
+    const imgElement = document.createElement("img");
+    imgElement.src = url;
+    imgElement.alt = `AI Image ${index + 1}`;
 
-    const download = document.createElement("a");
-    download.href = url;
-    download.download = `ai-image-${index + 1}.jpg`;
-    download.classList.add("download-btn");
-    download.innerHTML = `<img src="images/download.svg" alt="download">`;
+    const downloadBtn = document.createElement("a");
+    downloadBtn.href = url;
+    downloadBtn.download = `ai-image-${index + 1}.jpg`;
+    downloadBtn.classList.add("download-btn");
+    downloadBtn.textContent = "Download";
 
-    card.appendChild(img);
-    card.appendChild(download);
-    gallery.appendChild(card);
+    imgCard.appendChild(imgElement);
+    imgCard.appendChild(downloadBtn);
+    imgContainer.appendChild(imgCard);
   });
 }
 
 async function generateAIImages(prompt, quantity) {
   try {
-    const res = await fetch("/api/generate", {
+    const response = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt, numOutputs: quantity }),
+      body: JSON.stringify({ prompt, numOutputs: quantity })
     });
-    if (!res.ok) throw new Error("Backend error");
-    const data = await res.json();
+
+    if (!response.ok) throw new Error("Backend error");
+
+    const data = await response.json();
     const urls = data.images || (data.output_url ? [data.output_url] : []);
     if (urls.length === 0) throw new Error("No images generated");
+
     updateImageCard(urls);
   } catch (err) {
     alert(err.message);

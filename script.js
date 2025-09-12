@@ -1,80 +1,50 @@
-// script.js
+const form = document.querySelector(".generate-form");
+const promptInput = document.querySelector(".prompt-input");
+const imgQuantity = document.querySelector(".img-quantity");
+const gallery = document.querySelector(".image-gallery");
 
-// Function to update image cards with the generated images
 function updateImageCard(imgUrls) {
-  const imgContainer = document.querySelector(".image-container");
-  imgContainer.innerHTML = ""; // Clear old images
-
+  gallery.innerHTML = "";
   imgUrls.forEach((url, index) => {
-    // Create card
-    const imgCard = document.createElement("div");
-    imgCard.classList.add("img-card");
+    const card = document.createElement("div");
+    card.classList.add("img-card");
 
-    // Create image
-    const imgElement = document.createElement("img");
-    imgElement.src = url;
-    imgElement.alt = `AI Image ${index + 1}`;
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = `AI Image ${index + 1}`;
 
-    // Create download button
-    const downloadBtn = document.createElement("a");
-    downloadBtn.classList.add("download-btn");
-    downloadBtn.href = url;
-    downloadBtn.setAttribute("download", `ai-image-${index + 1}.jpg`);
-    downloadBtn.innerText = "Download";
+    const download = document.createElement("a");
+    download.href = url;
+    download.download = `ai-image-${index + 1}.jpg`;
+    download.classList.add("download-btn");
+    download.innerHTML = `<img src="images/download.svg" alt="download">`;
 
-    imgCard.appendChild(imgElement);
-    imgCard.appendChild(downloadBtn);
-    imgContainer.appendChild(imgCard);
+    card.appendChild(img);
+    card.appendChild(download);
+    gallery.appendChild(card);
   });
 }
 
-// Call your backend to generate images
-async function generateAIImages(userPrompt, userImgQuantity) {
+async function generateAIImages(prompt, quantity) {
   try {
-    const response = await fetch("/api/generate", {
+    const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        prompt: userPrompt,
-        numOutputs: userImgQuantity
-      }),
+      body: JSON.stringify({ prompt, numOutputs: quantity }),
     });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch from backend");
-    }
-
-    const prediction = await response.json();
-
-    if (prediction.error) {
-      throw new Error(prediction.error);
-    }
-
-    // DeepAI usually returns only one image, so adjust
-    const imageUrls = prediction.output_url
-      ? [prediction.output_url]
-      : [];
-
-    if (imageUrls.length === 0) {
-      throw new Error("No images generated. Try another prompt.");
-    }
-
-    updateImageCard(imageUrls);
-  } catch (error) {
-    console.error("Frontend error:", error);
-    alert(error.message || "Something went wrong. Please try again.");
+    if (!res.ok) throw new Error("Backend error");
+    const data = await res.json();
+    const urls = data.images || (data.output_url ? [data.output_url] : []);
+    if (urls.length === 0) throw new Error("No images generated");
+    updateImageCard(urls);
+  } catch (err) {
+    alert(err.message);
   }
 }
 
-// Hook up Generate button
-document.getElementById("generateBtn").addEventListener("click", () => {
-  const userPrompt = document.getElementById("userPrompt").value;
-  const userImgQuantity = document.getElementById("imgQuantity").value || 1;
-
-  if (!userPrompt) {
-    alert("Please enter a prompt.");
-    return;
-  }
-
-  generateAIImages(userPrompt, userImgQuantity);
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const prompt = promptInput.value.trim();
+  const quantity = parseInt(imgQuantity.value, 10);
+  if (prompt) generateAIImages(prompt, quantity);
 });

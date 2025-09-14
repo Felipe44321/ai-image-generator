@@ -23,14 +23,14 @@ app.post("/api/generate", async (req, res) => {
       return res.status(400).json({ error: "Prompt is required" });
     }
 
-    const response = await fetch("https://api.deepai.org/api/text2img", {
-      method: "POST",
-      headers: {
-        "Api-Key": process.env.DEEPAI_KEY, // ✅ Loaded from .env
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({ text: prompt }),
-    });
+  const response = await fetch("https://api.deepai.org/api/text2img", {
+  method: "POST",
+  headers: {
+    "Api-Key": process.env.DEEPAI_KEY,
+    "Content-Type": "application/x-www-form-urlencoded",
+  },
+  body: new URLSearchParams({ text: prompt }),
+});
 
     const data = await response.json();
     res.json(data);

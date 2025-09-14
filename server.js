@@ -1,45 +1,32 @@
-const express = require("express");
-const fetch = require("node-fetch");
-const path = require("path");
-require("dotenv").config(); // ✅ Load .env variables
+const form = document.getElementById("image-form");
+const gallery = document.getElementById("gallery");
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-app.use(express.json());
+    const prompt = document.getElementById("user-prompt").value;
+    const quantity = document.getElementById("img-quantity").value;
 
-// ✅ Serve static files
-app.use("/style", express.static(path.join(__dirname, "style")));
-app.use("/script", express.static(path.join(__dirname, "script")));
-app.use("/images", express.static(path.join(__dirname, "images")));
-app.use(express.static(path.join(__dirname)));
+    try {
+        const res = await fetch("/api/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt, quantity })
+        });
 
-// ✅ API route
-app.post("/api/generate", async (req, res) => {
-  try {
-    const { prompt } = req.body;
+        const data = await res.json();
+        gallery.innerHTML = ""; // Clear old results
 
-    if (!prompt) {
-      return res.status(400).json({ error: "Prompt is required" });
+        if (data.output_url) {
+            const img = document.createElement("img");
+            img.src = data.output_url;
+            img.alt = prompt;
+            gallery.appendChild(img);
+        } else {
+            gallery.innerHTML = <p style="color:red">Error: ${data.error || "No image generated"}</p>;
+        }
+    } catch (err) {
+        console.error(err);
+        gallery.innerHTML = <p style="color:red">Request failed</p>;
     }
-
-  const response = await fetch("https://api.deepai.org/api/text2img", {
-  method: "POST",
-  headers: {
-    "Api-Key": process.env.DEEPAI_KEY,
-    "Content-Type": "application/x-www-form-urlencoded",
-  },
-  body: new URLSearchParams({ text: prompt }),
-});
-
-    const data = await response.json();
-    res.json(data);
-  } catch (err) {
-    console.error("Error generating image:", err);
-    res.status(500).json({ error: "Failed to generate image" });
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
 });

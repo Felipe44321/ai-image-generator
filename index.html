@@ -4,38 +4,33 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Image Generator Tool</title>
-<link rel="stylesheet" href="/style/style.css">
+  <!-- ✅ Correct CSS path -->
+  <link rel="stylesheet" href="/style/style.css" />
 </head>
 <body>
   <div class="container">
     <h1>AI Image Generator Tool</h1>
     <p>Convert your text into an image within a second using this AI Image Generator Tool.</p>
 
-    <!-- Fixed: form now has an ID -->
     <form id="image-form">
-      <!-- Fixed: input has the ID script.js expects -->
       <input 
         type="text" 
         id="user-prompt" 
         placeholder="Describe what you want to see" 
         required 
       />
-
-      <!-- Fixed: select has the ID script.js expects -->
-      <select id="image-quantity">
-        <option value="1">1 image</option>
-        <option value="2">2 images</option>
-        <option value="3">3 images</option>
-        <option value="4">4 images</option>
+      <select id="img-quantity">
+        <option value="1">1 Image</option>
+        <option value="2">2 Images</option>
+        <option value="3">3 Images</option>
       </select>
-
       <button type="submit">Generate</button>
     </form>
 
-    <!-- Fixed: container div now has the right ID -->
-    <div id="image-container" class="image-container"></div>
+    <div id="gallery"></div>
   </div>
 
+  <!-- ✅ Correct JS path -->
   <script src="/script/script.js"></script>
 </body>
 </html>

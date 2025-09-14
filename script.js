@@ -1,28 +1,7 @@
-const form = document.querySelector("#prompt-form");
-const promptInput = document.querySelector("#prompt-input");
-const imgQuantity = document.querySelector("#img-quantity");
-const gallery = document.querySelector("#gallery");
-
-function updateImageCard(urls) {
-  gallery.innerHTML = "";
-  urls.forEach((url, index) => {
-    const imgCard = document.createElement("div");
-    imgCard.classList.add("img-card");
-
-    const img = document.createElement("img");
-    img.src = url;
-
-    const downloadBtn = document.createElement("a");
-    downloadBtn.href = url;
-    downloadBtn.download = `ai-image-${index + 1}.jpg`;
-    downloadBtn.textContent = "Download";
-    downloadBtn.classList.add("download-btn");
-
-    imgCard.appendChild(img);
-    imgCard.appendChild(downloadBtn);
-    gallery.appendChild(imgCard);
-  });
-}
+const form = document.getElementById("image-form");
+const promptInput = document.getElementById("user-prompt");
+const imgQuantity = document.getElementById("img-quantity");
+const gallery = document.getElementById("gallery");
 
 async function generateAIImages(prompt, quantity) {
   try {
@@ -39,17 +18,22 @@ async function generateAIImages(prompt, quantity) {
 
     if (urls.length === 0) throw new Error("No images generated");
 
-    updateImageCard(urls);
+    gallery.innerHTML = ""; // Clear old images
+    urls.forEach((url) => {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = prompt;
+      img.className = "result-img";
+      gallery.appendChild(img);
+    });
   } catch (err) {
     alert(err.message);
   }
 }
 
-if (form) {
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const prompt = promptInput.value.trim();
-    const quantity = parseInt(imgQuantity.value, 10);
-    if (prompt) generateAIImages(prompt, quantity);
-  });
-}
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const prompt = promptInput.value.trim();
+  const quantity = parseInt(imgQuantity.value, 10);
+  if (prompt) generateAIImages(prompt, quantity);
+});
